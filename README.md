@@ -48,3 +48,13 @@ public class JapaneseSorting {
         return sortedList;
     }
 }
+
+
+
+List<String> projects = new List<String>{'さくら', 'あかね', 'たけし', 'こういち'};
+List<String> sortedProjects = JapaneseSorting.sortJapanese(projects);
+
+for (String project : sortedProjects) {
+    System.debug(project);
+}
+
