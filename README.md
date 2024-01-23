@@ -1,3 +1,29 @@
+Apexで五十音の各行を表現するには、Stringのリストを作成し、それに各仮名を追加することができます。以下は、Apexで五十音の「あ行」から「わ行」までのリストを作成する例です。
+ーーーーーーーーーーーー
+List<String> aRow = new List<String>{'あ', 'い', 'う', 'え', 'お'};
+List<String> kaRow = new List<String>{'か', 'き', 'く', 'け', 'こ'};
+List<String> saRow = new List<String>{'さ', 'し', 'す', 'せ', 'そ'};
+List<String> taRow = new List<String>{'た', 'ち', 'つ', 'て', 'と'};
+List<String> naRow = new List<String>{'な', 'に', 'ぬ', 'ね', 'の'};
+List<String> haRow = new List<String>{'は', 'ひ', 'ふ', 'へ', 'ほ'};
+List<String> maRow = new List<String>{'ま', 'み', 'む', 'め', 'も'};
+List<String> yaRow = new List<String>{'や', 'ゆ', 'よ'};
+List<String> raRow = new List<String>{'ら', 'り', 'る', 'れ', 'ろ'};
+List<String> waRow = new List<String>{'わ', 'を', 'ん'};
+
+// 各リストの内容を出力
+System.debug('あ行: ' + aRow);
+System.debug('か行: ' + kaRow);
+System.debug('さ行: ' + saRow);
+System.debug('た行: ' + taRow);
+System.debug('な行: ' + naRow);
+System.debug('は行: ' + haRow);
+System.debug('ま行: ' + maRow);
+System.debug('や行: ' + yaRow);
+System.debug('ら行: ' + raRow);
+System.debug('わ行: ' + waRow);
+
+ーーーーーーーーーーーーーーーーーーーーーーーーーーーーー
 public class JapaneseSorting {
 
     // 五十音顺序表
