@@ -1,86 +1,51 @@
-Apexで五十音の各行を表現するには、Stringのリストを作成し、それに各仮名を追加することができます。以下は、Apexで五十音の「あ行」から「わ行」までのリストを作成する例です。
-ーーーーーーーーーーーー
-List<String> aRow = new List<String>{'あ', 'い', 'う', 'え', 'お'};
-List<String> kaRow = new List<String>{'か', 'き', 'く', 'け', 'こ'};
-List<String> saRow = new List<String>{'さ', 'し', 'す', 'せ', 'そ'};
-List<String> taRow = new List<String>{'た', 'ち', 'つ', 'て', 'と'};
-List<String> naRow = new List<String>{'な', 'に', 'ぬ', 'ね', 'の'};
-List<String> haRow = new List<String>{'は', 'ひ', 'ふ', 'へ', 'ほ'};
-List<String> maRow = new List<String>{'ま', 'み', 'む', 'め', 'も'};
-List<String> yaRow = new List<String>{'や', 'ゆ', 'よ'};
-List<String> raRow = new List<String>{'ら', 'り', 'る', 'れ', 'ろ'};
-List<String> waRow = new List<String>{'わ', 'を', 'ん'};
+基盤構築の段階では、以下の具体的な作業内容と方法を実施します。
 
-// 各リストの内容を出力
-System.debug('あ行: ' + aRow);
-System.debug('か行: ' + kaRow);
-System.debug('さ行: ' + saRow);
-System.debug('た行: ' + taRow);
-System.debug('な行: ' + naRow);
-System.debug('は行: ' + haRow);
-System.debug('ま行: ' + maRow);
-System.debug('や行: ' + yaRow);
-System.debug('ら行: ' + raRow);
-System.debug('わ行: ' + waRow);
+1. **Azureクラウドインフラの構築とコード化**
+   - **作業内容:**
+     - Azureポータルを使用して、必要なAzureリソース（仮想マシン、ネットワーク、ストレージなど）を構築します。
+     - ARM (Azure Resource Manager) テンプレートを作成し、インフラストラクチャをコードで定義します。
+   - **方法:**
+     - Azureポータルにログインし、必要なリソースを選択してデプロイします。
+     - ARMテンプレートを使用して、インフラストラクチャをコードで定義し、管理します。
+     - PowerShellやAzure CLIを使ってARMテンプレートを適用し、インフラストラクチャを自動化します。
 
-ーーーーーーーーーーーーーーーーーーーーーーーーーーーーー
-public class JapaneseSorting {
+2. **システム構成図検討と設計**
+   - **作業内容:**
+     - システムの機能要件や非機能要件を分析し、適切なシステム構成図を検討します。
+     - ネットワーク構成、サーバー構成、データベース構成などを設計します。
+   - **方法:**
+     - 関係者とのミーティングやワークショップを実施し、要件を明確にし、システム構成図を合意します。
+     - ツールやソフトウェアを使用して、システムの設計図を作成し、関係者と共有します。
 
-    // 五十音顺序表
-    private static Map<String, Integer> orderMap = new Map<String, Integer>{
-        'あ'=>1, 'い'=>2, 'う'=>3, 'え'=>4, 'お'=>5,
-        'か'=>6, 'き'=>7, 'く'=>8, 'け'=>9, 'こ'=>10,
-        // ... 为每个五十音字符添加相应的顺序值
-        'ん'=>46
-    };
+3. **データベースの移行：OracleDBからAzure SQLDatabaseへ**
+   - **作業内容:**
+     - OracleDBからAzure SQL Databaseへのデータベース移行計画を立案します。
+     - データの抽出、変換、ロード (ETL) を実施して、データの移行を実現します。
+   - **方法:**
+     - SSMA (SQL Server Migration Assistant) や自作のスクリプトを使用して、OracleDBからAzure SQL Databaseへのデータ移行を行います。
+     - 移行前のテストを行い、データの整合性と完全性を確認します。
 
-    // 自定义比较器
-    private class JapaneseComparator implements Comparable {
-        private final String value;
+4. **設計書とテスト仕様書の作成**
+   - **作業内容:**
+     - システム設計書やテスト仕様書を作成し、プロジェクトの進行と品質管理を確保します。
+     - 設計やテストの方針、手順、基準を文書化します。
+   - **方法:**
+     - テンプレートやツールを使用して、設計書やテスト仕様書を作成します。
+     - 関係者とのレビューを行い、必要に応じて修正や更新を行います。
 
-        JapaneseComparator(String value) {
-            this.value = value;
-        }
+5. **テストの実施**
+   - **作業内容:**
+     - テスト計画に基づいて、システムの各機能や性能をテストします。
+     - 単体テスト、結合テスト、システムテストなどを実施します。
+   - **方法:**
+     - テストケースを作成し、テストを実施します。
+     - テスト結果を記録し、問題点を特定して修正します。
 
-        public Integer getOrder(String s) {
-            // 获取字符串第一个字符的顺序值
-            String firstChar = String.valueOf(s.charAt(0));
-            return orderMap.get(firstChar) != null ? orderMap.get(firstChar) : 999;
-        }
+6. **リリース作業の実施**
+   - **作業内容:**
+     - テストが完了したシステムを本番環境にリリースし、運用に移行します。
+   - **方法:**
+     - リリース手順を定義し、本番環境への変更を計画し、実施します。
+     - リリース後のシステムの動作をモニタリングし、問題がないことを確認します。
 
-        public Integer compareTo(Object obj) {
-            JapaneseComparator other = (JapaneseComparator)obj;
-            Integer order1 = getOrder(this.value);
-            Integer order2 = getOrder(other.value);
-
-            if (order1 == order2) {
-                // 如果第一个字符相同，则比较整个字符串
-                return value.compareTo(other.value);
-            }
-            return order1.compareTo(order2);
-        }
-    }
-
-    public static List<String> sortJapanese(List<String> inputList) {
-        List<JapaneseComparator> tempList = new List<JapaneseComparator>();
-        for (String s : inputList) {
-            tempList.add(new JapaneseComparator(s));
-        }
-        tempList.sort();
-        List<String> sortedList = new List<String>();
-        for (JapaneseComparator comp : tempList) {
-            sortedList.add(comp.value);
-        }
-        return sortedList;
-    }
-}
-
-
-
-List<String> projects = new List<String>{'さくら', 'あかね', 'たけし', 'こういち'};
-List<String> sortedProjects = JapaneseSorting.sortJapanese(projects);
-
-for (String project : sortedProjects) {
-    System.debug(project);
-}
-
+これらの作業を段階的に進めることで、損保子システムの基盤を効果的に構築し、運用保守を確保します。
