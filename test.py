@@ -1,3 +1,53 @@
+import requests
+import json
+
+def get_access_token(tenant_id, client_id, client_secret):
+    token_url = f"https://login.microsoftonline.com/{tenant_id}/oauth2/token"
+    token_data = {
+        'grant_type': 'client_credentials',
+        'client_id': client_id,
+        'client_secret': client_secret,
+        'resource': 'https://purview.azure.net'
+    }
+    token_r = requests.post(token_url, data=token_data)
+    return token_r.json().get('access_token')
+
+def get_collections(account_name, access_token):
+    url = f"https://{account_name}.purview.azure.com/account/collections?api-version=2021-07-01"
+    headers = {
+        'Authorization': f'Bearer {access_token}',
+        'Content-Type': 'application/json'
+    }
+    response = requests.get(url, headers=headers)
+    return response.json()
+
+# Replace these with your actual values
+tenant_id = "your_tenant_id"
+client_id = "your_client_id"
+client_secret = "your_client_secret"
+account_name = "your_purview_account_name"
+
+# Get access token
+access_token = get_access_token(tenant_id, client_id, client_secret)
+
+# Get collections
+collections = get_collections(account_name, access_token)
+
+# Print collections
+print(json.dumps(collections, indent=4))
+
+# Extract the ID of a specific collection (replace 'collection_name' with the actual name of your collection)
+collection_name = "your_collection_name"
+collection_id = None
+for collection in collections['value']:
+    if collection['name'] == collection_name:
+        collection_id = collection['id']
+        break
+
+print(f"Collection ID for '{collection_name}': {collection_id}")
+
+
+
 Status Code: 404
 Response: {"requestId": "687bbee1-e1a7-49bc-b10d-0b2f99e7f6d1", "errorCode": "ATLAS-404-00-007", "errorMessage": "Invalid instance reation/updation parameters passed : azure_sql_column data_type: mandatory attribute value missing in type azure_sql_column"}
 import requests
