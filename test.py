@@ -12,6 +12,93 @@ def get_access_token(tenant_id, client_id, client_secret):
     token_r = requests.post(token_url, data=token_data)
     return token_r.json().get('access_token')
 
+def create_table_asset(account_name, access_token, table_data):
+    url = f"https://{account_name}.purview.azure.com/catalog/api/atlas/v2/entity"
+    headers = {
+        'Authorization': f'Bearer {access_token}',
+        'Content-Type': 'application/json'
+    }
+    response = requests.post(url, headers=headers, data=json.dumps(table_data))
+    return response
+
+# Replace these with your actual values
+tenant_id = "your_tenant_id"
+client_id = "your_client_id"
+client_secret = "your_client_secret"
+account_name = "your_purview_account_name"
+
+# Get access token
+access_token = get_access_token(tenant_id, client_id, client_secret)
+
+# Define the table asset
+table_data = {
+    "entity": {
+        "typeName": "azure_sql_table",
+        "attributes": {
+            "name": "M_Approver",
+            "friendlyName": "Approver master",
+            "description": "Common Master",
+            "qualifiedName": "azure_sql_table://M_Approver"
+        },
+        "relationshipAttributes": {
+            "columns": [
+                {
+                    "typeName": "azure_sql_column",
+                    "attributes": {
+                        "name": "RowVersion",
+                        "dataType": "TIMESTAMP",
+                        "description": "RowVersion",
+                        "qualifiedName": "azure_sql_table://M_Approver/RowVersion"
+                    }
+                },
+                {
+                    "typeName": "azure_sql_column",
+                    "attributes": {
+                        "name": "ID",
+                        "dataType": "VARCHAR(100)",
+                        "description": "User ID",
+                        "qualifiedName": "azure_sql_table://M_Approver/ID"
+                    }
+                },
+                {
+                    "typeName": "azure_sql_column",
+                    "attributes": {
+                        "name": "Name",
+                        "dataType": "NVARCHAR(30)",
+                        "description": "Approval name",
+                        "qualifiedName": "azure_sql_table://M_Approver/Name"
+                    }
+                }
+            ]
+        }
+    }
+}
+
+# Create the table asset
+response = create_table_asset(account_name, access_token, table_data)
+
+print(f"Status Code: {response.status_code}")
+print(f"Response: {response.text}")
+
+
+
+
+
+--------------------------------------------------
+import requests
+import json
+
+def get_access_token(tenant_id, client_id, client_secret):
+    token_url = f"https://login.microsoftonline.com/{tenant_id}/oauth2/token"
+    token_data = {
+        'grant_type': 'client_credentials',
+        'client_id': client_id,
+        'client_secret': client_secret,
+        'resource': 'https://purview.azure.net'
+    }
+    token_r = requests.post(token_url, data=token_data)
+    return token_r.json().get('access_token')
+
 def create_custom_types(account_name, access_token, type_definitions):
     url = f"https://{account_name}.purview.azure.com/catalog/api/atlas/v2/types/typedefs"
     headers = {
