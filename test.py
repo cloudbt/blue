@@ -1,3 +1,197 @@
+import requests
+import json
+
+def get_access_token(tenant_id, client_id, client_secret):
+    token_url = f"https://login.microsoftonline.com/{tenant_id}/oauth2/token"
+    token_data = {
+        'grant_type': 'client_credentials',
+        'client_id': client_id,
+        'client_secret': client_secret,
+        'resource': 'https://purview.azure.net'
+    }
+    token_r = requests.post(token_url, data=token_data)
+    return token_r.json().get('access_token')
+
+def create_custom_types(account_name, access_token, type_definitions):
+    url = f"https://{account_name}.purview.azure.com/catalog/api/atlas/v2/types/typedefs"
+    headers = {
+        'Authorization': f'Bearer {access_token}',
+        'Content-Type': 'application/json'
+    }
+    response = requests.post(url, headers=headers, data=json.dumps(type_definitions))
+    return response
+
+# Replace these with your actual values
+tenant_id = "your_tenant_id"
+client_id = "your_client_id"
+client_secret = "your_client_secret"
+account_name = "your_purview_account_name"
+
+# Get access token
+access_token = get_access_token(tenant_id, client_id, client_secret)
+
+# Define the custom types
+custom_types = {
+    "entityDefs": [
+        {
+            "category": "ENTITY",
+            "name": "azure_sql_schema",
+            "description": "Custom type for Azure SQL Schema",
+            "typeVersion": "1.0",
+            "attributeDefs": [
+                {
+                    "name": "name",
+                    "typeName": "string",
+                    "isOptional": False,
+                    "cardinality": "SINGLE",
+                    "valuesMinCount": 1,
+                    "valuesMaxCount": 1,
+                    "isUnique": False,
+                    "isIndexable": True
+                },
+                {
+                    "name": "qualifiedName",
+                    "typeName": "string",
+                    "isOptional": False,
+                    "cardinality": "SINGLE",
+                    "valuesMinCount": 1,
+                    "valuesMaxCount": 1,
+                    "isUnique": True,
+                    "isIndexable": True
+                }
+            ],
+            "superTypes": ["DataSet"]
+        },
+        {
+            "category": "ENTITY",
+            "name": "azure_sql_table",
+            "description": "Custom type for Azure SQL Table",
+            "typeVersion": "1.0",
+            "attributeDefs": [
+                {
+                    "name": "name",
+                    "typeName": "string",
+                    "isOptional": False,
+                    "cardinality": "SINGLE",
+                    "valuesMinCount": 1,
+                    "valuesMaxCount": 1,
+                    "isUnique": False,
+                    "isIndexable": True
+                },
+                {
+                    "name": "qualifiedName",
+                    "typeName": "string",
+                    "isOptional": False,
+                    "cardinality": "SINGLE",
+                    "valuesMinCount": 1,
+                    "valuesMaxCount": 1,
+                    "isUnique": True,
+                    "isIndexable": True
+                },
+                {
+                    "name": "description",
+                    "typeName": "string",
+                    "isOptional": True,
+                    "cardinality": "SINGLE",
+                    "valuesMinCount": 0,
+                    "valuesMaxCount": 1,
+                    "isUnique": False,
+                    "isIndexable": True
+                }
+            ],
+            "superTypes": ["DataSet"]
+        },
+        {
+            "category": "ENTITY",
+            "name": "azure_sql_column",
+            "description": "Custom type for Azure SQL Column",
+            "typeVersion": "1.0",
+            "attributeDefs": [
+                {
+                    "name": "name",
+                    "typeName": "string",
+                    "isOptional": False,
+                    "cardinality": "SINGLE",
+                    "valuesMinCount": 1,
+                    "valuesMaxCount": 1,
+                    "isUnique": False,
+                    "isIndexable": True
+                },
+                {
+                    "name": "qualifiedName",
+                    "typeName": "string",
+                    "isOptional": False,
+                    "cardinality": "SINGLE",
+                    "valuesMinCount": 1,
+                    "valuesMaxCount": 1,
+                    "isUnique": True,
+                    "isIndexable": True
+                },
+                {
+                    "name": "type",
+                    "typeName": "string",
+                    "isOptional": False,
+                    "cardinality": "SINGLE",
+                    "valuesMinCount": 1,
+                    "valuesMaxCount": 1,
+                    "isUnique": False,
+                    "isIndexable": True
+                }
+            ],
+            "superTypes": ["DataSet"]
+        }
+    ],
+    "relationshipDefs": [
+        {
+            "name": "azure_sql_schema_tables",
+            "relationshipCategory": "AGGREGATION",
+            "endDef1": {
+                "type": "azure_sql_schema",
+                "name": "tables",
+                "isContainer": True,
+                "cardinality": "SET",
+                "isLegacyAttribute": False
+            },
+            "endDef2": {
+                "type": "azure_sql_table",
+                "name": "schema",
+                "isContainer": False,
+                "cardinality": "SINGLE",
+                "isLegacyAttribute": False
+            }
+        },
+        {
+            "name": "azure_sql_table_columns",
+            "relationshipCategory": "COMPOSITION",
+            "endDef1": {
+                "type": "azure_sql_table",
+                "name": "columns",
+                "isContainer": True,
+                "cardinality": "SET",
+                "isLegacyAttribute": False
+            },
+            "endDef2": {
+                "type": "azure_sql_column",
+                "name": "table",
+                "isContainer": False,
+                "cardinality": "SINGLE",
+                "isLegacyAttribute": False
+            }
+        }
+    ]
+}
+
+# Create the custom types
+response = create_custom_types(account_name, access_token, custom_types)
+
+print(f"Status Code: {response.status_code}")
+print(f"Response: {response.text}")
+
+--------------------------------------------------------------
+
+
+
+
 
 
 import requests
