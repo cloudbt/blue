@@ -1,3 +1,41 @@
+
+
+import requests
+
+client_id = "your_client_id"
+client_secret = "your_client_secret"
+tenant_id = "your_tenant_id"
+
+token_url = f"https://login.microsoftonline.com/{tenant_id}/oauth2/token"
+
+token_data = {
+    'grant_type': 'client_credentials',
+    'client_id': client_id,
+    'client_secret': client_secret,
+    'resource': 'https://purview.azure.net'
+}
+
+token_r = requests.post(token_url, data=token_data)
+token = token_r.json().get('access_token')
+
+print(f"Bearer {token}")
+
+
+
+
+headers = {
+    'Authorization': f'Bearer {token}',
+    'Content-Type': 'application/json'
+}
+
+response = requests.get('https://your-purview-account.purview.azure.com/api/atlas/v2/types', headers=headers)
+
+
+
+
+
+
+
 import pyautogui
 import sys
 import os
