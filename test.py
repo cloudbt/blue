@@ -1,4 +1,5 @@
-
+Status Code: 404
+Response: {"requestId": "687bbee1-e1a7-49bc-b10d-0b2f99e7f6d1", "errorCode": "ATLAS-404-00-007", "errorMessage": "Invalid instance reation/updation parameters passed : azure_sql_column data_type: mandatory attribute value missing in type azure_sql_column"}
 import requests
 import json
 
