@@ -31,7 +31,37 @@ headers = {
 response = requests.get('https://your-purview-account.purview.azure.com/api/atlas/v2/types', headers=headers)
 
 
+import requests
 
+def test_purview_api(account_name, token, endpoint):
+    base_url = f"https://{account_name}.purview.azure.com/api/atlas/v2"
+    full_url = f"{base_url}/{endpoint}"
+    
+    headers = {
+        'Authorization': f'Bearer {token}',
+        'Content-Type': 'application/json'
+    }
+    
+    response = requests.get(full_url, headers=headers)
+    
+    print(f"Status Code: {response.status_code}")
+    print(f"Response: {response.text}")
+    
+    if response.status_code == 404:
+        print("\nPossible issues:")
+        print("1. Incorrect Purview account name")
+        print("2. Invalid API endpoint")
+        print("3. Network/firewall blocking access")
+        print("4. Insufficient permissions")
+    
+    return response
+
+# Replace these with your actual values
+account_name = "your-purview-account-name"
+token = "your-access-token"
+endpoint = "types"  # or another valid endpoint
+
+test_purview_api(account_name, token, endpoint)
 
 
 
