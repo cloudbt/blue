@@ -12,13 +12,13 @@ def get_access_token(tenant_id, client_id, client_secret):
     token_r = requests.post(token_url, data=token_data)
     return token_r.json().get('access_token')
 
-def create_table_asset(account_name, access_token, table_data):
-    url = f"https://{account_name}.purview.azure.com/catalog/api/atlas/v2/entity"
+def create_entities(account_name, access_token, entities):
+    url = f"https://{account_name}.purview.azure.com/catalog/api/atlas/v2/entity/bulk"
     headers = {
         'Authorization': f'Bearer {access_token}',
         'Content-Type': 'application/json'
     }
-    response = requests.post(url, headers=headers, data=json.dumps(table_data))
+    response = requests.post(url, headers=headers, data=json.dumps({"entities": entities}))
     return response
 
 # Replace these with your actual values
@@ -30,322 +30,75 @@ account_name = "your_purview_account_name"
 # Get access token
 access_token = get_access_token(tenant_id, client_id, client_secret)
 
-# Define the table asset
-table_data = {
-    "entity": {
+# Define the entities
+entities = [
+    {
         "typeName": "azure_sql_table",
         "attributes": {
             "name": "M_Approver",
             "friendlyName": "Approver master",
             "description": "Common Master",
             "qualifiedName": "azure_sql_table://M_Approver"
+        }
+    },
+    {
+        "typeName": "azure_sql_column",
+        "attributes": {
+            "name": "RowVersion",
+            "dataType": "TIMESTAMP",
+            "description": "RowVersion",
+            "qualifiedName": "azure_sql_table://M_Approver/RowVersion"
         },
         "relationshipAttributes": {
-            "columns": [
-                {
-                    "typeName": "azure_sql_column",
-                    "attributes": {
-                        "name": "RowVersion",
-                        "dataType": "TIMESTAMP",
-                        "description": "RowVersion",
-                        "qualifiedName": "azure_sql_table://M_Approver/RowVersion"
-                    }
-                },
-                {
-                    "typeName": "azure_sql_column",
-                    "attributes": {
-                        "name": "ID",
-                        "dataType": "VARCHAR(100)",
-                        "description": "User ID",
-                        "qualifiedName": "azure_sql_table://M_Approver/ID"
-                    }
-                },
-                {
-                    "typeName": "azure_sql_column",
-                    "attributes": {
-                        "name": "Name",
-                        "dataType": "NVARCHAR(30)",
-                        "description": "Approval name",
-                        "qualifiedName": "azure_sql_table://M_Approver/Name"
-                    }
+            "table": {
+                "typeName": "azure_sql_table",
+                "uniqueAttributes": {
+                    "qualifiedName": "azure_sql_table://M_Approver"
                 }
-            ]
+            }
+        }
+    },
+    {
+        "typeName": "azure_sql_column",
+        "attributes": {
+            "name": "ID",
+            "dataType": "VARCHAR(100)",
+            "description": "User ID",
+            "qualifiedName": "azure_sql_table://M_Approver/ID"
+        },
+        "relationshipAttributes": {
+            "table": {
+                "typeName": "azure_sql_table",
+                "uniqueAttributes": {
+                    "qualifiedName": "azure_sql_table://M_Approver"
+                }
+            }
+        }
+    },
+    {
+        "typeName": "azure_sql_column",
+        "attributes": {
+            "name": "Name",
+            "dataType": "NVARCHAR(30)",
+            "description": "Approval name",
+            "qualifiedName": "azure_sql_table://M_Approver/Name"
+        },
+        "relationshipAttributes": {
+            "table": {
+                "typeName": "azure_sql_table",
+                "uniqueAttributes": {
+                    "qualifiedName": "azure_sql_table://M_Approver"
+                }
+            }
         }
     }
-}
+]
 
-# Create the table asset
-response = create_table_asset(account_name, access_token, table_data)
+# Create the entities
+response = create_entities(account_name, access_token, entities)
 
 print(f"Status Code: {response.status_code}")
 print(f"Response: {response.text}")
-
-
-
-
-
---------------------------------------------------
-import requests
-import json
-
-def get_access_token(tenant_id, client_id, client_secret):
-    token_url = f"https://login.microsoftonline.com/{tenant_id}/oauth2/token"
-    token_data = {
-        'grant_type': 'client_credentials',
-        'client_id': client_id,
-        'client_secret': client_secret,
-        'resource': 'https://purview.azure.net'
-    }
-    token_r = requests.post(token_url, data=token_data)
-    return token_r.json().get('access_token')
-
-def create_custom_types(account_name, access_token, type_definitions):
-    url = f"https://{account_name}.purview.azure.com/catalog/api/atlas/v2/types/typedefs"
-    headers = {
-        'Authorization': f'Bearer {access_token}',
-        'Content-Type': 'application/json'
-    }
-    response = requests.post(url, headers=headers, data=json.dumps(type_definitions))
-    return response
-
-# Replace these with your actual values
-tenant_id = "your_tenant_id"
-client_id = "your_client_id"
-client_secret = "your_client_secret"
-account_name = "your_purview_account_name"
-
-# Get access token
-access_token = get_access_token(tenant_id, client_id, client_secret)
-
-# Define the custom types
-custom_types = {
-    "entityDefs": [
-        {
-            "category": "ENTITY",
-            "name": "azure_sql_schema",
-            "description": "Custom type for Azure SQL Schema",
-            "typeVersion": "1.0",
-            "attributeDefs": [
-                {
-                    "name": "name",
-                    "typeName": "string",
-                    "isOptional": False,
-                    "cardinality": "SINGLE",
-                    "valuesMinCount": 1,
-                    "valuesMaxCount": 1,
-                    "isUnique": False,
-                    "isIndexable": True
-                },
-                {
-                    "name": "qualifiedName",
-                    "typeName": "string",
-                    "isOptional": False,
-                    "cardinality": "SINGLE",
-                    "valuesMinCount": 1,
-                    "valuesMaxCount": 1,
-                    "isUnique": True,
-                    "isIndexable": True
-                }
-            ],
-            "superTypes": ["DataSet"]
-        },
-        {
-            "category": "ENTITY",
-            "name": "azure_sql_table",
-            "description": "Custom type for Azure SQL Table",
-            "typeVersion": "1.0",
-            "attributeDefs": [
-                {
-                    "name": "name",
-                    "typeName": "string",
-                    "isOptional": False,
-                    "cardinality": "SINGLE",
-                    "valuesMinCount": 1,
-                    "valuesMaxCount": 1,
-                    "isUnique": False,
-                    "isIndexable": True
-                },
-                {
-                    "name": "qualifiedName",
-                    "typeName": "string",
-                    "isOptional": False,
-                    "cardinality": "SINGLE",
-                    "valuesMinCount": 1,
-                    "valuesMaxCount": 1,
-                    "isUnique": True,
-                    "isIndexable": True
-                },
-                {
-                    "name": "description",
-                    "typeName": "string",
-                    "isOptional": True,
-                    "cardinality": "SINGLE",
-                    "valuesMinCount": 0,
-                    "valuesMaxCount": 1,
-                    "isUnique": False,
-                    "isIndexable": True
-                }
-            ],
-            "superTypes": ["DataSet"]
-        },
-        {
-            "category": "ENTITY",
-            "name": "azure_sql_column",
-            "description": "Custom type for Azure SQL Column",
-            "typeVersion": "1.0",
-            "attributeDefs": [
-                {
-                    "name": "name",
-                    "typeName": "string",
-                    "isOptional": False,
-                    "cardinality": "SINGLE",
-                    "valuesMinCount": 1,
-                    "valuesMaxCount": 1,
-                    "isUnique": False,
-                    "isIndexable": True
-                },
-                {
-                    "name": "qualifiedName",
-                    "typeName": "string",
-                    "isOptional": False,
-                    "cardinality": "SINGLE",
-                    "valuesMinCount": 1,
-                    "valuesMaxCount": 1,
-                    "isUnique": True,
-                    "isIndexable": True
-                },
-                {
-                    "name": "type",
-                    "typeName": "string",
-                    "isOptional": False,
-                    "cardinality": "SINGLE",
-                    "valuesMinCount": 1,
-                    "valuesMaxCount": 1,
-                    "isUnique": False,
-                    "isIndexable": True
-                }
-            ],
-            "superTypes": ["DataSet"]
-        }
-    ],
-    "relationshipDefs": [
-        {
-            "name": "azure_sql_schema_tables",
-            "relationshipCategory": "AGGREGATION",
-            "endDef1": {
-                "type": "azure_sql_schema",
-                "name": "tables",
-                "isContainer": True,
-                "cardinality": "SET",
-                "isLegacyAttribute": False
-            },
-            "endDef2": {
-                "type": "azure_sql_table",
-                "name": "schema",
-                "isContainer": False,
-                "cardinality": "SINGLE",
-                "isLegacyAttribute": False
-            }
-        },
-        {
-            "name": "azure_sql_table_columns",
-            "relationshipCategory": "COMPOSITION",
-            "endDef1": {
-                "type": "azure_sql_table",
-                "name": "columns",
-                "isContainer": True,
-                "cardinality": "SET",
-                "isLegacyAttribute": False
-            },
-            "endDef2": {
-                "type": "azure_sql_column",
-                "name": "table",
-                "isContainer": False,
-                "cardinality": "SINGLE",
-                "isLegacyAttribute": False
-            }
-        }
-    ]
-}
-
-# Create the custom types
-response = create_custom_types(account_name, access_token, custom_types)
-
-print(f"Status Code: {response.status_code}")
-print(f"Response: {response.text}")
-
---------------------------------------------------------------
-
-
-
-
-
-
-import requests
-
-client_id = "your_client_id"
-client_secret = "your_client_secret"
-tenant_id = "your_tenant_id"
-
-token_url = f"https://login.microsoftonline.com/{tenant_id}/oauth2/token"
-
-token_data = {
-    'grant_type': 'client_credentials',
-    'client_id': client_id,
-    'client_secret': client_secret,
-    'resource': 'https://purview.azure.net'
-}
-
-token_r = requests.post(token_url, data=token_data)
-token = token_r.json().get('access_token')
-
-print(f"Bearer {token}")
-
-
-
-
-headers = {
-    'Authorization': f'Bearer {token}',
-    'Content-Type': 'application/json'
-}
-
-response = requests.get('https://your-purview-account.purview.azure.com/api/atlas/v2/types', headers=headers)
-
-
-import requests
-
-def test_purview_api(account_name, token, endpoint):
-    base_url = f"https://{account_name}.purview.azure.com/api/atlas/v2"
-    full_url = f"{base_url}/{endpoint}"
-    
-    headers = {
-        'Authorization': f'Bearer {token}',
-        'Content-Type': 'application/json'
-    }
-    
-    response = requests.get(full_url, headers=headers)
-    
-    print(f"Status Code: {response.status_code}")
-    print(f"Response: {response.text}")
-    
-    if response.status_code == 404:
-        print("\nPossible issues:")
-        print("1. Incorrect Purview account name")
-        print("2. Invalid API endpoint")
-        print("3. Network/firewall blocking access")
-        print("4. Insufficient permissions")
-    
-    return response
-
-# Replace these with your actual values
-account_name = "your-purview-account-name"
-token = "your-access-token"
-endpoint = "types"  # or another valid endpoint
-
-test_purview_api(account_name, token, endpoint)
-
-
-
 
 import pyautogui
 import sys
