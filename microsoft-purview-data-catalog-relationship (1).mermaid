@@ -1,0 +1,58 @@
+    graph TD
+        BD[Business Domain] --> |contains| DP[DataProduct]
+        DP --> |contains| A[Assets]
+        A --> |used by| DC[DataConsumer]
+        BD --> |accessed by| DC
+        DP --> |accessed by| DC
+        
+        subgraph "Assets"
+        A1[DataSet]
+        A2[Database]
+        A3[File]
+        end
+        
+        A --> A1
+        A --> A2
+        A --> A3
+        
+        style BD fill:#f9f,stroke:#333,stroke-width:2px
+        style DP fill:#bbf,stroke:#333,stroke-width:2px
+        style A fill:#bfb,stroke:#333,stroke-width:2px
+        style DC fill:#fbb,stroke:#333,stroke-width:2px
+
+
+この図は、Microsoft Purviewのデータカタログにおける主要な要素の関係を表しています。以下に、各要素の説明と関係性を詳しく説明します：
+
+ビジネスドメイン（Business Domain）:
+
+組織内の特定の業務領域や部門を表します。
+複数のDataProductを含んでいます。
+
+
+DataProduct:
+
+ビジネスドメイン内の特定のデータ製品や機能を表します。
+複数のassetsを含んでいます。
+
+
+Assets:
+
+実際のデータリソースを表します。
+主な種類として、データセット、データベース、ファイル、APIがあります。
+
+
+DataConsumer:
+
+データを利用するユーザーやアプリケーションを表します。
+ビジネスドメイン、DataProduct、assetsにアクセスします。
+
+
+
+関係性：
+
+ビジネスドメインはDataProductを含んでいます。
+DataProductはassetsを含んでいます。
+DataConsumerは、ビジネスドメイン、DataProduct、assetsにアクセスし、利用します。
+
+この図は、データガバナンスとデータ管理の階層構造を示しており、組織のデータ資産がどのように構造化され、利用されているかを視覚的に表現しています。
+この関係図について、さらに詳しい説明や修正が必要な場合は、お知らせください。    

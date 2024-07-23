@@ -1,0 +1,71 @@
+graph TD
+    BD[Catalog Business Domain] --> |contains| DP[DataProduct]
+    DP --> |contains| A[Assets]
+    A --> |used by| DC[DataConsumer]
+    BD --> |accessed by| DC
+    DP --> |accessed by| DC
+    
+    DMD[DataMap Domain] --> |contains| COL[Collections]
+    COL --> |contains| DS[DataSource]
+    DS --> |scanned by| SCN[Scan]
+    SCN --> |discovers| A
+    
+    subgraph "Assets"
+    A1[database]
+    A2[dataset]
+    A3[file]
+    end
+    
+    A --> A1
+    A --> A2
+    A --> A3
+    
+    style BD fill:#f9f,stroke:#333,stroke-width:2px
+    style DP fill:#bbf,stroke:#333,stroke-width:2px
+    style A fill:#bfb,stroke:#333,stroke-width:2px
+    style DC fill:#fbb,stroke:#333,stroke-width:2px
+    style DMD fill:#ff9,stroke:#333,stroke-width:2px
+    style COL fill:#f96,stroke:#333,stroke-width:2px
+    style DS fill:#9cf,stroke:#333,stroke-width:2px
+    style SCN fill:#c2f,stroke:#333,stroke-width:2px
+
+この更新された図では、以前の要素に加えて、DataMap関連の要素とその関係性を追加しました。新しく追加された要素と関係性について説明します：
+
+DataMap Domain:
+
+DataMapの最上位レベルの組織単位を表します。
+複数のCollectionsを含んでいます。
+
+
+Collections:
+
+関連するDataSourceをグループ化するための論理的なコンテナです。
+DataMap Domain内に存在し、複数のDataSourceを含みます。
+
+
+DataSource:
+
+実際のデータの場所や種類（例：Azure SQL Database、Azure Blob Storage）を表します。
+Collectionsに含まれます。
+
+
+Scan:
+
+DataSourceに対して実行される検出プロセスを表します。
+DataSourceをスキャンし、Assetsを発見します。
+
+
+
+関係性：
+
+DataMap DomainはCollectionsを含みます。
+CollectionsはDataSourceを含みます。
+DataSourceはScanによってスキャンされます。
+ScanはAssetsを発見します。
+
+この拡張された図は、Microsoft Purviewのデータカタログとデータマップの両方の要素を統合し、それらの関係性を示しています。これにより、データの発見から利用までの全体的な流れが視覚化されています。
+
+データマップ側（左側）では、データの発見と分類のプロセスを表現しています。
+データカタログ側（右側）では、発見されたデータの組織化と利用のプロセスを表現しています。
+
+この図を通じて、データガバナンス、データ発見、データ利用の全体的な流れを理解することができます。さらに詳細な説明や修正が必要な場合は、お知らせください。
