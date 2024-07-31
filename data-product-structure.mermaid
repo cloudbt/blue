@@ -1,0 +1,34 @@
+graph LR
+    BD[ビジネスドメイン]
+    DP1[DataProduct1]
+    DP2[DataProduct2]
+    A1[Assets1]
+    A2[Assets2]
+    AS1[データセット]
+    AS2[データベース]
+    AS3[ファイル]
+    AS4[API]
+    DC[DataConsumer]
+    
+    BD --> DP1
+    BD --> DP2
+    DP1 --> A1
+    DP2 --> A2
+    A1 --> AS1
+    A1 --> AS2
+    A2 --> AS3
+    A2 --> AS4
+    
+    BD -.-> DC
+    A1 -.-> DC
+    A2 -.-> DC
+    
+    classDef domain fill:#f9f,stroke:#333,stroke-width:2px
+    classDef product fill:#bbf,stroke:#333,stroke-width:2px
+    classDef assets fill:#bfb,stroke:#333,stroke-width:2px
+    classDef consumer fill:#fbb,stroke:#333,stroke-width:2px
+    
+    class BD domain
+    class DP1,DP2 product
+    class A1,A2,AS1,AS2,AS3,AS4 assets
+    class DC consumer

@@ -1,0 +1,23 @@
+graph TD
+    BD[ビジネスドメイン] --> |contains| DP[DataProduct]
+    DP --> |contains| A[Assets]
+    A --> |used by| DC[DataConsumer]
+    BD --> |accessed by| DC
+    DP --> |accessed by| DC
+    
+    subgraph "Assets"
+    A1[データセット]
+    A2[データベース]
+    A3[ファイル]
+    A4[API]
+    end
+    
+    A --> A1
+    A --> A2
+    A --> A3
+    A --> A4
+    
+    style BD fill:#f9f,stroke:#333,stroke-width:2px
+    style DP fill:#bbf,stroke:#333,stroke-width:2px
+    style A fill:#bfb,stroke:#333,stroke-width:2px
+    style DC fill:#fbb,stroke:#333,stroke-width:2px
