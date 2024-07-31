@@ -1,0 +1,33 @@
+graph TD
+    BD[Business Name]
+    DP1[DataProduct1]
+    DP2[DataProduct2]
+    A1[Assets1]
+    A2[Assets2]
+    DC[DataConsumer]
+    AS1[DB1]
+    AS2[DB2]
+    
+    BD -->  DP1
+    BD --> DP2
+    DP1 -->  A1
+    DP2 -->  A2
+    
+    A1 --> |used by| DC
+    A2 --> |used by| DC
+    BD --> |accessed by| DC
+    DP1 -.-> |accessed by| DC
+    DP2 -.-> |accessed by| DC
+    
+    A1 --- AS1
+    A2 --- AS2
+    
+    classDef domain fill:#f9f,stroke:#333,stroke-width:2px
+    classDef product fill:#bbf,stroke:#333,stroke-width:2px
+    classDef asset fill:#bfb,stroke:#333,stroke-width:2px
+    classDef consumer fill:#fbb,stroke:#333,stroke-width:2px
+    
+    class BD domain
+    class DP1,DP2 product
+    class A1,A2,AS1,AS2 asset
+    class DC consumer
