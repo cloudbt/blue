@@ -1,0 +1,54 @@
+graph TB
+    %% DataMap側（左側）
+    DMD[DataMap Domain] --> COL1[Collections 1]
+    DMD --> COL2[Collections 2]
+    COL1 --> DS1[DataSource 1]
+    COL2 --> COL21[Collections 2.1]
+    COL2 --> COL22[Collections 2.2]
+    COL21 --> DS21[DataSource 2.1]
+    COL22 --> DS22[DataSource 2.2]
+    DS1 --> SCN1[Scan 1]
+    DS21 --> SCN21[Scan 2.1]
+    DS22 --> SCN22[Scan 2.2]
+    
+    %% ビジネスドメイン側（右側）
+    BD[ビジネスドメイン] --> DP1[DataProduct 1]
+    BD --> DP2[DataProduct 2]
+    DP1 --> A1[Assets 1]
+    DP2 --> A2[Assets 2]
+    
+    %% Assetsの詳細
+    A1 --> A11[データセット1]
+    A1 --> A12[データベース1]
+    A2 --> A21[ファイル1]
+    A2 --> A22[API1]
+    
+    %% スキャンとAssetsの関係
+    SCN1 -.-> |discovers| A1
+    SCN21 -.-> |discovers| A2
+    SCN22 -.-> |discovers| A2
+    
+    %% DataConsumerの関係（中央に配置）
+    DC[DataConsumer]
+    DC --> BD
+    DC --> DP1
+    DC --> DP2
+    DC --> A1
+    DC --> A2
+    
+    %% スタイル
+    classDef domain fill:#f9f,stroke:#333,stroke-width:2px;
+    classDef collection fill:#f96,stroke:#333,stroke-width:2px;
+    classDef dataSource fill:#9cf,stroke:#333,stroke-width:2px;
+    classDef scan fill:#c9f,stroke:#333,stroke-width:2px;
+    classDef dataProduct fill:#bbf,stroke:#333,stroke-width:2px;
+    classDef assets fill:#bfb,stroke:#333,stroke-width:2px;
+    classDef consumer fill:#fbb,stroke:#333,stroke-width:4px;
+    
+    class DMD,BD domain;
+    class COL1,COL2,COL21,COL22 collection;
+    class DS1,DS21,DS22 dataSource;
+    class SCN1,SCN21,SCN22 scan;
+    class DP1,DP2 dataProduct;
+    class A1,A2,A11,A12,A21,A22 assets;
+    class DC consumer;
