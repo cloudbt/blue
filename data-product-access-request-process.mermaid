@@ -1,0 +1,39 @@
+flowchart TB
+    subgraph PolicyStructure ["Policy Structure"]
+        direction TB
+        GD["Governance Domain Policy"]
+        DP["Data Product Access Policy"]
+        GD -->|Inherits| DP
+        DP --> AP[Aggregated Policies]
+    end
+
+    subgraph RequestProcess ["Access Request Process"]
+        direction TB
+        U[User] -->|1. Searches| DC[Data Catalog]
+        DC -->|2. Finds| DPR[Data Product]
+        U -->|3. Requests Access| RF[Request Form]
+        RF -->|4. Submits| AR[Access Request]
+        AR -->|5. Triggers| AW[Approval Workflow]
+        AW -->|6. Notifies| APP[Approvers]
+        APP -->|7. Approve/Deny| AR
+        AR -->|8. Notifies| U
+    end
+
+    subgraph ViewRequests ["View Access Requests"]
+        direction TB
+        U -->|Checks| MAR[My Access Requests]
+        MAR --> PEN[Pending]
+        MAR --> APR[Approved]
+        MAR --> DEN[Denied]
+        MAR --> COM[Completed]
+    end
+
+    AP -->|Defines| RF
+    
+    classDef policy fill:#e6f3ff,stroke:#0066cc,stroke-width:2px;
+    classDef process fill:#fff0e6,stroke:#ff6600,stroke-width:2px;
+    classDef view fill:#e6ffe6,stroke:#006600,stroke-width:2px;
+    
+    class GD,DP,AP policy;
+    class U,DC,DPR,RF,AR,AW,APP process;
+    class MAR,PEN,APR,DEN,COM view;
