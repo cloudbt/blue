@@ -1,3 +1,52 @@
+This Mermaid diagram illustrates the relationship between the Governance Domain Policy and the Data Product Access Policy. Here's an explanation of the diagram:
+
+The Governance Domain Policy, Glossary Term Policy, and Critical Data Element Policy all inherit their policies to the Data Product Access Policy.
+The Data Product Access Policy aggregates these inherited policies along with its own specific policies.
+The inherited policies from the Governance Domain include:
+
+Manager Approval
+Data Copy Permission
+Custom Attestations
+
+
+The Data Product specific policies include:
+
+Permitted Access
+Approval Requirements
+Access Request Approvers
+Access Provider
+Attestations
+Terms of Use
+
+
+All these policies are aggregated and reflected in the Access Request Form that data consumers see when requesting access to a data product.
+
+This diagram helps visualize how policies at different levels (Governance Domain, Glossary Terms, Critical Data Elements) are inherited and combined with Data Product-specific policies to create a comprehensive access policy for each data product. CopyRetryC
+
+-----
+I've created a new, more comprehensive diagram that includes the policy structure, the process of requesting access to data products, and how to view access requests. Here's an explanation of the diagram:
+
+Policy Structure:
+
+Shows the relationship between Governance Domain Policy and Data Product Access Policy.
+Illustrates how these policies are aggregated to form the basis for the request form.
+
+
+Access Request Process:
+
+Steps 1-2: User searches the Data Catalog and finds a Data Product.
+Steps 3-4: User requests access by filling out and submitting the Request Form.
+Steps 5-6: This triggers an Approval Workflow, notifying the Approvers.
+Steps 7-8: Approvers make a decision, and the User is notified of the outcome.
+
+
+View Access Requests:
+
+Shows how a User can check their access requests.
+Displays the possible statuses: Pending, Approved, Denied, and Completed.
+
+
+
 基盤構築の段階では、以下の具体的な作業内容と方法を実施します。
 
 1. **Azureクラウドインフラの構築とコード化**
