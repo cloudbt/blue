@@ -1,0 +1,28 @@
+flowchart TB
+    subgraph GD ["Governance Domain Policy"]
+        G[Manager Approval]
+        H[Data Copy Permission]
+        I[Custom Attestations]
+    end
+
+    subgraph DP ["Data Product Access Policy"]
+        J[Permitted Access]
+        K[Approval Requirements]
+        L[Access Request Approvers]
+        M[Access Provider]
+        N[Attestations]
+        O[Terms of Use]
+    end
+
+    GD -->|Inherits| DP
+    DP --> E[Aggregated Policies]
+    E --> F[Access Request Form]
+
+    classDef default fill:#f9f9f9,stroke:#333,stroke-width:1px;
+    classDef inherited fill:#e6f3ff,stroke:#0066cc,stroke-width:2px;
+    classDef specific fill:#fff0e6,stroke:#ff6600,stroke-width:2px;
+    classDef result fill:#f0f0f0,stroke:#666,stroke-width:1px;
+
+    class GD,G,H,I inherited;
+    class DP,J,K,L,M,N,O specific;
+    class E,F result;
