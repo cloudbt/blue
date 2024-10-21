@@ -2,7 +2,7 @@
 
 # 定数設定
 S3_BUCKET="my-terraform-state-bucket"  # S3バケット名
-S3_KEY_PREFIX="asp/dev/"               # .tfstateファイルが格納されているS3のパス
+S3_KEY_PREFIX="dev/asp/"               # .tfstateファイルが格納されているS3のパス
 CSV_FILE="s3list.csv"                  # ローカルのCSVファイル名
 GITHUB_REPO_DIR="/path/to/repository/A" # GitHubリポジトリAのローカルパス
 GITHUB_CSV_PATH="${GITHUB_REPO_DIR}/docs/${CSV_FILE}"  # GitHubリポジトリの保存パス
@@ -12,7 +12,7 @@ mkdir -p /tmp/tfstate_files
 aws s3 cp --recursive "s3://${S3_BUCKET}/${S3_KEY_PREFIX}" /tmp/tfstate_files --exclude "*" --include "*.tfstate"
 
 # CSVファイルのヘッダーを作成
-echo "Bucket,Policy" > /tmp/${CSV_FILE}
+echo "TFStateFile,Bucket,Policy" > /tmp/${CSV_FILE}
 
 # ダウンロードした全ての.tfstateファイルから情報を抽出
 for file in /tmp/tfstate_files/*.tfstate; do
@@ -20,9 +20,17 @@ for file in /tmp/tfstate_files/*.tfstate; do
   bucket=$(jq -r '.resources[] | select(.type == "aws_s3_bucket") | .instances[].attributes.bucket' "$file")
   policy=$(jq -r '.resources[] | select(.type == "aws_s3_bucket") | .instances[].attributes.policy' "$file")
 
-  # 抽出した情報をCSVファイルに書き込む
-  if [[ -n "$bucket" && -n "$policy" ]]; then
-    echo "${bucket},${policy}" >> /tmp/${CSV_FILE}
+  # policyが空であれば"なし"、空でなければ"あり"を設定
+  if [[ -z "$policy" ]]; then
+    policy_status="なし"
+  else
+    policy_status="あり"
+  fi
+
+  # bucketが空でない場合のみCSVに追記
+  if [[ -n "$bucket" ]]; then
+    tfstate_file=$(basename "$file")  # .tfstateファイル名を取得
+    echo "${tfstate_file},${bucket},${policy_status}" >> /tmp/${CSV_FILE}
   fi
 done
 
