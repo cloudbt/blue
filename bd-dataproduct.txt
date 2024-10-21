@@ -16,22 +16,32 @@ echo "TFStateFile,Bucket,Policy" > /tmp/${CSV_FILE}
 
 # ダウンロードした全ての.tfstateファイルから情報を抽出
 for file in /tmp/tfstate_files/*.tfstate; do
-  # jqコマンドでaws_s3_bucketかつmodeが"managed"のbucketとpolicyを抽出
-  bucket=$(jq -r '.resources[] | select(.type == "aws_s3_bucket" and .mode != "data") | .instances[].attributes.bucket' "$file")
-  policy=$(jq -r '.resources[] | select(.type == "aws_s3_bucket" and .mode != "data") | .instances[].attributes.policy' "$file")
+  tfstate_file=$(basename "$file")  # .tfstateファイル名を取得
 
-  # policyが空であれば"なし"、空でなければ"あり"を設定
-  if [[ -z "$policy" ]]; then
-    policy_status="なし"
-  else
-    policy_status="あり"
-  fi
+  # jqコマンドでaws_s3_bucketかつmodeが"data"でないbucketとpolicyの配列を抽出
+  buckets=$(jq -r '.resources[] | select(.type == "aws_s3_bucket" and .mode != "data") | .instances[].attributes.bucket' "$file")
+  policies=$(jq -r '.resources[] | select(.type == "aws_s3_bucket" and .mode != "data") | .instances[].attributes.policy' "$file")
 
-  # bucketが空でない場合のみCSVに追記
-  if [[ -n "$bucket" ]]; then
-    tfstate_file=$(basename "$file")  # .tfstateファイル名を取得
-    echo "${tfstate_file},${bucket},${policy_status}" >> /tmp/${CSV_FILE}
-  fi
+  # 抽出したbucketとpolicyを行ごとに処理
+  IFS=$'\n' read -rd '' -a bucket_array <<<"$buckets"
+  IFS=$'\n' read -rd '' -a policy_array <<<"$policies"
+
+  for i in "${!bucket_array[@]}"; do
+    bucket="${bucket_array[$i]}"
+    policy="${policy_array[$i]}"
+
+    # policyが空であれば"なし"、空でなければ"あり"を設定
+    if [[ -z "$policy" ]]; then
+      policy_status="なし"
+    else
+      policy_status="あり"
+    fi
+
+    # bucketが空でない場合のみCSVに追記
+    if [[ -n "$bucket" ]]; then
+      echo "${tfstate_file},${bucket},${policy_status}" >> /tmp/${CSV_FILE}
+    fi
+  done
 done
 
 # GitHubリポジトリのcsvファイルにコピー
