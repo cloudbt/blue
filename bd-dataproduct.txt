@@ -1,33 +1,41 @@
-graph TD
-    BD[Business Name]
-    DP1[DataProduct1]
-    DP2[DataProduct2]
-    A1[Assets1]
-    A2[Assets2]
-    DC[DataConsumer]
-    AS1[DB1]
-    AS2[DB2]
-    
-    BD -->  DP1
-    BD --> DP2
-    DP1 -->  A1
-    DP2 -->  A2
-    
-    A1 --> |used by| DC
-    A2 --> |used by| DC
-    BD --> |accessed by| DC
-    DP1 -.-> |accessed by| DC
-    DP2 -.-> |accessed by| DC
-    
-    A1 --- AS1
-    A2 --- AS2
-    
-    classDef domain fill:#f9f,stroke:#333,stroke-width:2px
-    classDef product fill:#bbf,stroke:#333,stroke-width:2px
-    classDef asset fill:#bfb,stroke:#333,stroke-width:2px
-    classDef consumer fill:#fbb,stroke:#333,stroke-width:2px
-    
-    class BD domain
-    class DP1,DP2 product
-    class A1,A2,AS1,AS2 asset
-    class DC consumer
+#!/bin/bash
+
+# 定数設定
+S3_BUCKET="my-terraform-state-bucket"  # S3バケット名
+S3_KEY_PREFIX="asp/dev/"               # .tfstateファイルが格納されているS3のパス
+CSV_FILE="s3list.csv"                  # ローカルのCSVファイル名
+GITHUB_REPO_DIR="/path/to/repository/A" # GitHubリポジトリAのローカルパス
+GITHUB_CSV_PATH="${GITHUB_REPO_DIR}/docs/${CSV_FILE}"  # GitHubリポジトリの保存パス
+
+# .tfstateファイルを一時ディレクトリにダウンロード
+mkdir -p /tmp/tfstate_files
+aws s3 cp --recursive "s3://${S3_BUCKET}/${S3_KEY_PREFIX}" /tmp/tfstate_files --exclude "*" --include "*.tfstate"
+
+# CSVファイルのヘッダーを作成
+echo "Bucket,Policy" > /tmp/${CSV_FILE}
+
+# ダウンロードした全ての.tfstateファイルから情報を抽出
+for file in /tmp/tfstate_files/*.tfstate; do
+  # jqコマンドでaws_s3_bucketのbucketとpolicyを抽出
+  bucket=$(jq -r '.resources[] | select(.type == "aws_s3_bucket") | .instances[].attributes.bucket' "$file")
+  policy=$(jq -r '.resources[] | select(.type == "aws_s3_bucket") | .instances[].attributes.policy' "$file")
+
+  # 抽出した情報をCSVファイルに書き込む
+  if [[ -n "$bucket" && -n "$policy" ]]; then
+    echo "${bucket},${policy}" >> /tmp/${CSV_FILE}
+  fi
+done
+
+# GitHubリポジトリのcsvファイルにコピー
+cp /tmp/${CSV_FILE} "${GITHUB_CSV_PATH}"
+
+# GitHubリポジトリにCSVファイルをコミットしてプッシュ
+cd "${GITHUB_REPO_DIR}" || exit
+git add "${GITHUB_CSV_PATH}"
+git commit -m "Update s3list.csv with latest S3 bucket and policy information"
+git push origin main  # ブランチ名は適宜変更してください
+
+# 一時ファイルのクリーンアップ
+rm -rf /tmp/tfstate_files /tmp/${CSV_FILE}
+
+echo "CSVファイルがGitHubリポジトリに保存されました。"
