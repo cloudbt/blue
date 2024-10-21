@@ -2,7 +2,7 @@
 
 # 定数設定
 S3_BUCKET="my-terraform-state-bucket"  # S3バケット名
-S3_KEY_PREFIX="dev/asp/"               # .tfstateファイルが格納されているS3のパス
+S3_KEY_PREFIX="asp/dev/"               # .tfstateファイルが格納されているS3のパス
 CSV_FILE="s3list.csv"                  # ローカルのCSVファイル名
 GITHUB_REPO_DIR="/path/to/repository/A" # GitHubリポジトリAのローカルパス
 GITHUB_CSV_PATH="${GITHUB_REPO_DIR}/docs/${CSV_FILE}"  # GitHubリポジトリの保存パス
@@ -16,9 +16,9 @@ echo "TFStateFile,Bucket,Policy" > /tmp/${CSV_FILE}
 
 # ダウンロードした全ての.tfstateファイルから情報を抽出
 for file in /tmp/tfstate_files/*.tfstate; do
-  # jqコマンドでaws_s3_bucketのbucketとpolicyを抽出
-  bucket=$(jq -r '.resources[] | select(.type == "aws_s3_bucket") | .instances[].attributes.bucket' "$file")
-  policy=$(jq -r '.resources[] | select(.type == "aws_s3_bucket") | .instances[].attributes.policy' "$file")
+  # jqコマンドでaws_s3_bucketかつmodeが"managed"のbucketとpolicyを抽出
+  bucket=$(jq -r '.resources[] | select(.type == "aws_s3_bucket" and .mode != "data") | .instances[].attributes.bucket' "$file")
+  policy=$(jq -r '.resources[] | select(.type == "aws_s3_bucket" and .mode != "data") | .instances[].attributes.policy' "$file")
 
   # policyが空であれば"なし"、空でなければ"あり"を設定
   if [[ -z "$policy" ]]; then
