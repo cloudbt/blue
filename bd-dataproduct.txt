@@ -12,23 +12,35 @@ mkdir -p /tmp/tfstate_files
 aws s3 cp --recursive "s3://${S3_BUCKET}/${S3_KEY_PREFIX}" /tmp/tfstate_files --exclude "*" --include "*.tfstate"
 
 # CSVファイルのヘッダーを作成
-echo "TFStateFile,Bucket,Policy" > /tmp/${CSV_FILE}
+echo "TFStateFile,Bucket,Policy,Tags,Logging_TargetBucket,ObjectLockEnabled,ObjectLockDays,ObjectLockMode,ObjectLockYears,LifecycleRule" > /tmp/${CSV_FILE}
 
 # ダウンロードした全ての.tfstateファイルから情報を抽出
 for file in /tmp/tfstate_files/*.tfstate; do
   tfstate_file=$(basename "$file")  # .tfstateファイル名を取得
 
-  # jqコマンドでaws_s3_bucketかつmodeが"data"でないbucketとpolicyの配列を抽出
+  # jqコマンドでaws_s3_bucketかつmodeが"data"でないbucketとその他フィールドを抽出
   buckets=$(jq -r '.resources[] | select(.type == "aws_s3_bucket" and .mode != "data") | .instances[].attributes.bucket' "$file")
   policies=$(jq -r '.resources[] | select(.type == "aws_s3_bucket" and .mode != "data") | .instances[].attributes.policy' "$file")
+  tags=$(jq -r '.resources[] | select(.type == "aws_s3_bucket" and .mode != "data") | .instances[].attributes.tags_all' "$file")
+  loggings=$(jq -r '.resources[] | select(.type == "aws_s3_bucket" and .mode != "data") | .instances[].attributes.logging.target_bucket' "$file")
+  object_lock_configs=$(jq -r '.resources[] | select(.type == "aws_s3_bucket" and .mode != "data") | .instances[].attributes.object_lock_configuration' "$file")
+  lifecycle_rules=$(jq -r '.resources[] | select(.type == "aws_s3_bucket" and .mode != "data") | .instances[].attributes.lifecycle_rule' "$file")
 
   # 抽出したbucketとpolicyを行ごとに処理
   IFS=$'\n' read -rd '' -a bucket_array <<<"$buckets"
   IFS=$'\n' read -rd '' -a policy_array <<<"$policies"
+  IFS=$'\n' read -rd '' -a logging_array <<<"$loggings"
+  IFS=$'\n' read -rd '' -a object_lock_array <<<"$object_lock_configs"
+  IFS=$'\n' read -rd '' -a lifecycle_rule_array <<<"$lifecycle_rules"
+  IFS=$'\n' read -rd '' -a tag_array <<<"$tags"
 
   for i in "${!bucket_array[@]}"; do
     bucket="${bucket_array[$i]}"
     policy="${policy_array[$i]}"
+    logging="${logging_array[$i]}"
+    object_lock="${object_lock_array[$i]}"
+    lifecycle_rule="${lifecycle_rule_array[$i]}"
+    tags="${tag_array[$i]}"
 
     # policyが空であれば"なし"、空でなければ"あり"を設定
     if [[ -z "$policy" ]]; then
@@ -37,9 +49,29 @@ for file in /tmp/tfstate_files/*.tfstate; do
       policy_status="あり"
     fi
 
+    # loggingが空でない場合はtarget_bucketを取得
+    if [[ -n "$logging" ]]; then
+      logging_target="$logging"
+    else
+      logging_target="なし"
+    fi
+
+    # object_lock_configurationが空でない場合は詳細を取得
+    if [[ -n "$object_lock" ]]; then
+      object_lock_enabled=$(jq -r '.resources[] | select(.type == "aws_s3_bucket" and .mode != "data") | .instances[].attributes.object_lock_configuration.object_lock_enabled' "$file")
+      object_lock_days=$(jq -r '.resources[] | select(.type == "aws_s3_bucket" and .mode != "data") | .instances[].attributes.object_lock_configuration.rule.default_retention.days' "$file")
+      object_lock_mode=$(jq -r '.resources[] | select(.type == "aws_s3_bucket" and .mode != "data") | .instances[].attributes.object_lock_configuration.rule.default_retention.mode' "$file")
+      object_lock_years=$(jq -r '.resources[] | select(.type == "aws_s3_bucket" and .mode != "data") | .instances[].attributes.object_lock_configuration.rule.default_retention.years' "$file")
+    else
+      object_lock_enabled="なし"
+      object_lock_days="なし"
+      object_lock_mode="なし"
+      object_lock_years="なし"
+    fi
+
     # bucketが空でない場合のみCSVに追記
     if [[ -n "$bucket" ]]; then
-      echo "${tfstate_file},${bucket},${policy_status}" >> /tmp/${CSV_FILE}
+      echo "${tfstate_file},${bucket},${policy_status},${tags},${logging_target},${object_lock_enabled},${object_lock_days},${object_lock_mode},${object_lock_years},${lifecycle_rule}" >> /tmp/${CSV_FILE}
     fi
   done
 done
